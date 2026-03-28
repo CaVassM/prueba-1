@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Armando Casas - Asesor Inmobiliario IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0a0a0a;
+      --accent: #ffffff;
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --border: rgba(0, 0, 0, 0.08);
+      --text-primary: #0a0a0a;
+      --text-secondary: #666666;
+      --text-tertiary: #999999;
+      --bubble-user-bg: #0a0a0a;
+      --bubble-user-text: #ffffff;
+      --bubble-agent-bg: #f5f5f5;
+      --bubble-agent-text: #0a0a0a;
+      --rec: #ef4444;
+      --online: #10b981;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.012) 0px,
+        rgba(255, 255, 255, 0.012) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.04) 0%, transparent 70%);
+    }
+
+    .ornament {
+      position: fixed;
+      width: 200px;
+      height: 200px;
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ornament-tl {
+      top: 20px;
+      left: 20px;
+      border-top: 2px solid var(--primary);
+      border-left: 2px solid var(--primary);
+      border-radius: 8px 0 0 0;
+    }
+
+    .ornament-br {
+      bottom: 20px;
+      right: 20px;
+      border-bottom: 2px solid var(--primary);
+      border-right: 2px solid var(--primary);
+      border-radius: 0 0 8px 0;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      animation: fadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--online);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes featureIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+
+    @keyframes recDotBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    h1 .line1 {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+    }
+
+    h1 .line2 {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text-secondary);
+      display: block;
+      position: relative;
+      padding-bottom: 12px;
+    }
+
+    h1 .line2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+      overflow: hidden;
+    }
+
+    h1 .line2::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -100%;
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+      animation: fadeIn 0.6s 0.3s both;
+    }
+
+    .hero-text {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      animation: fadeUp 0.6s 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .hero-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .features-section {
+      margin-bottom: 48px;
+      animation: fadeUp 0.6s 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .features-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-tertiary);
+      margin-bottom: 24px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card {
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      animation-fill-mode: both;
+    }
+
+    .feature-card:nth-child(1) { animation: featureIn 0.6s 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .feature-card:nth-child(2) { animation: featureIn 0.6s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .feature-card:nth-child(3) { animation: featureIn 0.6s 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .feature-card:nth-child(4) { animation: featureIn 0.6s 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .feature-card:nth-child(5) { animation: featureIn 0.6s 1.0s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .feature-card:nth-child(6) { animation: featureIn 0.6s 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .feature-emoji {
+      font-size: 32px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .feature-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .separator {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 48px 0;
+      animation: fadeUp 0.6s 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .separator-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .separator-text {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .suggestion-card {
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 32px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeUp 0.6s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .suggestion-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+      transition: left 0.5s ease;
+    }
+
+    .suggestion-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .suggestion-card:hover::before {
+      left: 100%;
+    }
+
+    .suggestion-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .suggestion-emoji {
+      font-size: 24px;
+    }
+
+    .suggestion-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .suggestion-message {
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .suggestion-message strong {
+      font-weight: 600;
+    }
+
+    .chat-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      animation: fadeUp 0.6s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+    }
+
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--text-secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .chat-agent-info {
+      flex: 1;
+    }
+
+    .chat-agent-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .chat-agent-role {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .chat-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--online);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: var(--text-tertiary);
+    }
+
+    .message {
+      display: flex;
+      gap: 8px;
+      animation: msgIn 0.3s ease both;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .bubble {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .message.agent .bubble {
+      background: var(--bubble-agent-bg);
+      color: var(--bubble-agent-text);
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .message.user .bubble {
+      background: var(--bubble-user-bg);
+      color: var(--bubble-user-text);
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .bubble-timestamp {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      display: block;
+    }
+
+    .message.agent .bubble-timestamp {
+      text-align: left;
+    }
+
+    .message.user .bubble-timestamp {
+      text-align: right;
+    }
+
+    .bubble-doc {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+    }
+
+    .doc-icon {
+      font-size: 24px;
+    }
+
+    .doc-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .doc-name {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .doc-size {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .bubble-img img {
+      max-width: 100%;
+      border-radius: 8px;
+      display: block;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .bubble-img img:hover {
+      transform: scale(1.02);
+    }
+
+    .bubble-audio {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      min-width: 240px;
+    }
+
+    .audio-play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .audio-play-btn:hover {
+      background: rgba(0, 0, 0, 0.15);
+      transform: scale(1.05);
+    }
+
+    .audio-waveform {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 24px;
+    }
+
+    .audio-bar {
+      width: 3px;
+      background: currentColor;
+      opacity: 0.4;
+      border-radius: 2px;
+    }
+
+    .audio-duration {
+      font-size: 12px;
+      opacity: 0.7;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #typingIndicator {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #typingIndicator.active {
+      display: flex;
+    }
+
+    .typing-bubble {
+      background: var(--bubble-agent-bg);
+      color: var(--bubble-agent-text);
+      padding: 12px 16px;
+      border-radius: 16px 16px 16px 4px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 50%;
+      opacity: 0.4;
+      animation: typingBounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .chat-input-zone {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .file-preview-strip {
+      display: none;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .file-preview-strip.visible {
+      display: flex;
+    }
+
+    .file-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .file-chip-icon {
+      font-size: 16px;
+    }
+
+    .file-chip-name {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-chip-remove {
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 0;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .file-chip-remove:hover {
+      background: rgba(0, 0, 0, 0.1);
+      color: var(--text-primary);
+    }
+
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+    }
+
+    .input-row.hidden {
+      display: none;
+    }
+
+    .input-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .input-btn:hover {
+      background: var(--border);
+      transform: scale(1.05);
+    }
+
+    .input-textarea-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    #messageInput {
+      width: 100%;
+      min-height: 40px;
+      max-height: 100px;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: none;
+      background: var(--bg);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    #messageInput:focus {
+      border-color: var(--accent);
+    }
+
+    #sendBtn {
+      background: var(--accent);
+      color: var(--primary);
+    }
+
+    #sendBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    #sendBtn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .recording-row {
+      display: none;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 24px;
+    }
+
+    .recording-row.active {
+      display: flex;
+    }
+
+    .recording-cancel-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--rec);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .recording-cancel-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: scale(1.05);
+    }
+
+    .recording-visualizer {
+      flex: 1;
+      height: 48px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recording-visualizer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.1) 0%, transparent 70%);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .recording-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--rec);
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: recDotBlink 1s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .recording-bars {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .recording-bar {
+      width: 3px;
+      background: var(--rec);
+      border-radius: 2px;
+      transition: all 0.05s ease;
+    }
+
+    .recording-timer {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .recording-send-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--accent);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .recording-send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .recording-send-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      animation: fadeIn 0.6s 1.0s both;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 36px;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chat-wrapper {
+        height: 520px;
+      }
+
+      .bubble {
+        max-width: 85%;
+      }
+
+      .container {
+        padding: 24px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ornament ornament-tl"></div>
+  <div class="ornament ornament-br"></div>
+
+  <div class="container">
+    <div class="badge">
+      <span class="pulse-dot"></span>
+      Demo en vivo
+    </div>
+
+    <h1>
+      <span class="line1">Agente de IA</span>
+      <span class="line2">para Inmobiliarias</span>
+    </h1>
+
+    <div class="divider"></div>
+
+    <p class="hero-text">
+      Descubre cómo un asistente virtual inteligente puede <strong>transformar tu negocio inmobiliario</strong> atendiendo clientes 24/7, calificando prospectos automáticamente y agendando visitas sin intervención humana.
+    </p>
+
+    <div class="features-section">
+      <div class="features-label">Capacidades principales</div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="feature-emoji">🏠</span>
+          <div class="feature-title">Búsqueda inteligente</div>
+          <div class="feature-desc">Encuentra propiedades según presupuesto, ubicación y preferencias del cliente</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">📅</span>
+          <div class="feature-title">Agenda automática</div>
+          <div class="feature-desc">Coordina visitas y citas sin intervención manual</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">💬</span>
+          <div class="feature-title">Chat 24/7</div>
+          <div class="feature-desc">Respuestas instantáneas en cualquier momento del día</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">📊</span>
+          <div class="feature-title">Calificación de leads</div>
+          <div class="feature-desc">Identifica automáticamente los prospectos más valiosos</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">🔔</span>
+          <div class="feature-title">Notificaciones smart</div>
+          <div class="feature-desc">Alertas sobre nuevas propiedades que coincidan con el perfil</div>
+        </div>
+        <div class="feature-card">
+          <span class="feature-emoji">📸</span>
+          <div class="feature-title">Tours virtuales</div>
+          <div class="feature-desc">Comparte fotos, videos y recorridos 360° al instante</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="separator">
+      <div class="separator-line"></div>
+      <span class="separator-text">Pruébalo ahora</span>
+      <div class="separator-line"></div>
+    </div>
+
+    <div class="suggestion-card" onclick="injectSuggestion()">
+      <div class="suggestion-header">
+        <span class="suggestion-emoji">🏠</span>
+        <span class="suggestion-label">👆 Toca aquí para comenzar</span>
+      </div>
+      <div class="suggestion-message">
+        Hola, estoy buscando un departamento de <strong>2 dormitorios en San Isidro</strong>, presupuesto hasta $250,000
+      </div>
+    </div>
+
+    <div class="chat-wrapper">
+      <div class="chat-header">
+        <div class="chat-avatar">🏠</div>
+        <div class="chat-agent-info">
+          <div class="chat-agent-name">Armando Casas</div>
+          <div class="chat-agent-role">Asesor Inmobiliario</div>
+        </div>
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          en línea
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div id="typingIndicator">
+          <div class="typing-bubble">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-zone">
+        <div class="file-preview-strip" id="filePreviewStrip"></div>
+
+        <div class="input-row" id="normalInputRow">
+          <button class="input-btn" id="attachBtn" title="Adjuntar archivo">📎</button>
+          <button class="input-btn" id="micBtn" title="Grabar audio">🎤</button>
+          <div class="input-textarea-wrapper">
+            <textarea id="messageInput" placeholder="Escribe tu mensaje..." onkeydown="handleKey(event)"></textarea>
+          </div>
+          <button class="input-btn" id="sendBtn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+
+        <div class="recording-row" id="recordingRow">
+          <button class="recording-cancel-btn" onclick="cancelRecording()">✕</button>
+          <div class="recording-visualizer">
+            <div class="recording-dot"></div>
+            <div class="recording-bars" id="recordingBars"></div>
+            <div class="recording-timer" id="recordingTimer">0:00</div>
+          </div>
+          <button class="recording-send-btn" onclick="sendFromRecording()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <footer>Powered by IA · Inmobiliaria del Futuro</footer>
+  </div>
+
+  <input type="file" id="fileInput" hidden multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.png,.jpg,.jpeg">
+
+  <script>
+    const CONFIG = {
+      agentName: 'Armando Casas',
+      agentRole: 'Asesor Inmobiliario',
+      agentEmoji: '🏠',
+      webhookUrl: 'https://hook.us2.make.com/your-webhook-endpoint',
+      locale: 'es-PE',
+      suggestionMessage: 'Hola, estoy buscando un departamento de 2 dormitorios en San Isidro, presupuesto hasta $250,000'
+    };
+
+    let pendingFiles = [];
+    let currentStream = null;
+    let mediaRecorder = null;
+    let audioCtx = null;
+    let analyser = null;
+    let animationFrameId = null;
+    let recordingTimerInterval = null;
+    let recordingStartTime = 0;
+    let audioChunks = [];
+
+    // === UTILIDADES ===
+    function getSessionId() {
+      const KEY = 'agent_session_id';
+      let id = localStorage.getItem(KEY);
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem(KEY, id);
+      }
+      return id;
+    }
+
+    function formatTime(date) {
+      return date.toLocaleTimeString(CONFIG.locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    function formatDuration(secs) {
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function formatBytes(n) {
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function getFileIcon(filename) {
+      const ext = filename.split('.').pop().toLowerCase();
+      const map = {
+        pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊', txt: '📃',
+        png: '🖼', jpg: '🖼', jpeg: '🖼', mp3: '🎵', wav: '🎵', mp4: '🎬'
+      };
+      return map[ext] || '📁';
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML.replace(/\n/g, '<br>');
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    }
+
+    function scrollToBottom() {
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // === GESTIÓN DE ARCHIVOS ===
+    document.getElementById('attachBtn').addEventListener('click', () => {
+      document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      pendingFiles = [...pendingFiles, ...files];
+      renderFilePreview();
+      e.target.value = '';
+    });
+
+    function renderFilePreview() {
+      const strip = document.getElementById('filePreviewStrip');
+      if (pendingFiles.length === 0) {
+        strip.classList.remove('visible');
+        strip.innerHTML = '';
+        return;
+      }
+
+      strip.classList.add('visible');
+      strip.innerHTML = pendingFiles.map((file, idx) => `
+        <div class="file-chip">
+          <span class="file-chip-icon">${getFileIcon(file.name)}</span>
+          <span class="file-chip-name">${file.name}</span>
+          <button class="file-chip-remove" onclick="removeFile(${idx})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function removeFile(idx) {
+      pendingFiles.splice(idx, 1);
+      renderFilePreview();
+    }
+
+    // === ENVÍO DE MENSAJES ===
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+
+      if (!text && pendingFiles.length === 0) return;
+
+      const userMessage = text;
+      const filesToSend = [...pendingFiles];
+
+      input.value = '';
+      autoResize(input);
+      pendingFiles = [];
+      renderFilePreview();
+
+      if (userMessage) {
+        appendMessage('user', 'text', userMessage);
+      }
+
+      for (const file of filesToSend) {
+        if (file.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          appendMessage('user', 'image', url);
+        } else {
+          appendMessage('user', 'doc', { name: file.name, size: file.size, icon: getFileIcon(file.name) });
+        }
+      }
+
+      scrollToBottom();
+
+      const filesData = await Promise.all(filesToSend.map(async file => ({
+        name: file.name,
+        mimeType: file.type,
+        size: file.size,
+        data: await fileToBase64(file)
+      })));
+
+      const payload = {
+        sessionId: getSessionId(),
+        messageId: crypto.randomUUID(),
+        message: userMessage,
+        timestamp: new Date().toISOString(),
+        files: filesData
+      };
+
+      appendAgentTyping();
+      await _doFetch(payload);
+    }
+
+    // === GRABACIÓN DE AUDIO ===
+    document.getElementById('micBtn').addEventListener('click', startRecording);
+
+    async function startRecording() {
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        analyser.smoothingTimeConstant = 0.75;
+
+        const source = audioCtx.createMediaStreamSource(currentStream);
+        source.connect(analyser);
+
+        const barsContainer = document.getElementById('recordingBars');
+        barsContainer.innerHTML = '';
+        for (let i = 0; i < 28; i++) {
+          const bar = document.createElement('div');
+          bar.className = 'recording-bar';
+          bar.style.height = '3px';
+          barsContainer.appendChild(bar);
+        }
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        function animate() {
+          analyser.getByteFrequencyData(dataArray);
+          const bars = barsContainer.children;
+
+          for (let i = 0; i < bars.length; i++) {
+            const value = dataArray[i % dataArray.length] || 0;
+            const height = Math.max(3, (value / 255) * 24);
+            const opacity = 0.35 + (value / 255) * 0.65;
+            bars[i].style.height = height + 'px';
+            bars[i].style.opacity = opacity;
+          }
+
+          animationFrameId = requestAnimationFrame(animate);
+        }
+        animate();
+
+        const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : 'audio/webm';
+        mediaRecorder = new MediaRecorder(currentStream, { mimeType: mime });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.start(100);
+
+        recordingStartTime = Date.now();
+        recordingTimerInterval = setInterval(() => {
+          const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+          document.getElementById('recordingTimer').textContent = formatDuration(elapsed);
+        }, 500);
+
+        document.getElementById('normalInputRow').classList.add('hidden');
+        document.getElementById('recordingRow').classList.add('active');
+
+      } catch (err) {
+        console.error('Error al iniciar grabación:', err);
+        alert('No se pudo acceder al micrófono');
+      }
+    }
+
+    function cancelRecording() {
+      _stopRecordingState();
+      _hideRecordingUI();
+    }
+
+    async function sendFromRecording() {
+      _stopRecordingState();
+
+      if (audioChunks.length === 0) {
+        _hideRecordingUI();
+        return;
+      }
+
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      const duration = Math.floor((Date.now() - recordingStartTime) / 1000);
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        const base64 = dataUrl.split(',')[1];
+
+        appendMessage('user', 'audio', { dataUrl, duration });
+        scrollToBottom();
+
+        _hideRecordingUI();
+
+        const payload = {
+          sessionId: getSessionId(),
+          messageId: crypto.randomUUID(),
+          message: '',
+          timestamp: new Date().toISOString(),
+          files: [{
+            name: 'audio.webm',
+            mimeType: 'audio/webm',
+            size: blob.size,
+            data: base64
+          }]
+        };
+
+        appendAgentTyping();
+        await _doFetch(payload);
+      };
+      reader.readAsDataURL(blob);
+    }
+
+    function _stopRecordingState() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      if (recordingTimerInterval) {
+        clearInterval(recordingTimerInterval);
+        recordingTimerInterval = null;
+      }
+      if (audioCtx) {
+        audioCtx.close();
+        audioCtx = null;
+      }
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+    }
+
+    function _hideRecordingUI() {
+      document.getElementById('recordingRow').classList.remove('active');
+      document.getElementById('normalInputRow').classList.remove('hidden');
+      document.getElementById('recordingTimer').textContent = '0:00';
+    }
+
+    // === RENDERIZADO DE MENSAJES ===
+    function appendMessage(sender, type, content) {
+      const chatMessages = document.getElementById('chatMessages');
+      const typingIndicator = document.getElementById('typingIndicator');
+      const timestamp = formatTime(new Date());
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+
+      let bubbleContent = '';
+
+      if (type === 'text') {
+        bubbleContent = `
+          <div class="bubble">
+            ${escapeHtml(content)}
+            <span class="bubble-timestamp">${timestamp}</span>
+          </div>
+        `;
+      } else if (type === 'doc') {
+        bubbleContent = `
+          <div class="bubble bubble-doc">
+            <span class="doc-icon">${content.icon}</span>
+            <div class="doc-info">
+              <div class="doc-name">${escapeHtml(content.name)}</div>
+              <div class="doc-size">${formatBytes(content.size)}</div>
+            </div>
+          </div>
+          <span class="bubble-timestamp">${timestamp}</span>
+        `;
+      } else if (type === 'image') {
+        bubbleContent = `
+          <div class="bubble bubble-img">
+            <img src="${content}" onclick="window.open('${content}', '_blank')">
+            <span class="bubble-timestamp">${timestamp}</span>
+          </div>
+        `;
+      } else if (type === 'audio') {
+        const bars = Array(24).fill(0).map(() => {
+          const h = 4 + Math.random() * 16;
+          return `<div class="audio-bar" style="height:${h}px"></div>`;
+        }).join('');
+
+        bubbleContent = `
+          <div class="bubble bubble-audio">
+            <button class="audio-play-btn" onclick="playAudio(this, '${content.dataUrl}')">▶</button>
+            <div class="audio-waveform">${bars}</div>
+            <span class="audio-duration">${formatDuration(content.duration)}</span>
+          </div>
+          <span class="bubble-timestamp">${timestamp}</span>
+        `;
+      } else if (type === 'iframe') {
+        bubbleContent = `
+          <div class="bubble">
+            <iframe src="${content}" style="width:100%;height:240px;border:none;border-radius:8px"></iframe>
+            <span class="bubble-timestamp">${timestamp}</span>
+          </div>
+        `;
+      } else if (type === 'download') {
+        bubbleContent = `
+          <div class="bubble bubble-doc">
+            <span class="doc-icon">📄</span>
+            <div class="doc-info">
+              <div class="doc-name">${escapeHtml(content.name)}</div>
+              <a href="${content.url}" download style="font-size:13px;color:var(--accent)">⬇️ Descargar</a>
+            </div>
+          </div>
+          <span class="bubble-timestamp">${timestamp}</span>
+        `;
+      }
+
+      messageDiv.innerHTML = bubbleContent;
+      chatMessages.insertBefore(messageDiv, typingIndicator);
+    }
+
+    function playAudio(btn, dataUrl) {
+      const audio = new Audio(dataUrl);
+      btn.textContent = '⏸';
+
+      audio.onended = () => {
+        btn.textContent = '▶';
+      };
+
+      if (btn.textContent === '⏸') {
+        audio.play();
+      }
+    }
+
+    function appendAgentTyping() {
+      document.getElementById('typingIndicator').classList.add('active');
+      scrollToBottom();
+    }
+
+    function removeAgentTyping() {
+      document.getElementById('typingIndicator').classList.remove('active');
+    }
+
+    // === FETCH AL WEBHOOK ===
+    async function _doFetch(payload) {
+      try {
+        const response = await fetch(CONFIG.webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        const rawText = await response.text();
+
+        removeAgentTyping();
+
+        // CASO 1: Respuesta vacía
+        if (!rawText || !rawText.trim()) {
+          return;
+        }
+
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch {
+          // CASO 4: Texto plano
+          await new Promise(r => setTimeout(r, 800));
+          appendMessage('agent', 'text', rawText);
+          scrollToBottom();
+          return;
+        }
+
+        // CASO 2: JSON con chunks
+        if (data.chunks?.length > 0) {
+          for (let i = 0; i < data.chunks.length; i++) {
+            await new Promise(r => setTimeout(r, i * 2000));
+            appendAgentTyping();
+            await new Promise(r => setTimeout(r, 800));
+            removeAgentTyping();
+            appendMessage('agent', 'text', data.chunks[i]);
+            scrollToBottom();
+          }
+
+          // CASO 2b: Files después de chunks
+          if (data.files?.length > 0) {
+            await new Promise(r => setTimeout(r, data.chunks.length * 2000 + 1000));
+            for (const file of data.files) {
+              if (file.mimeType?.startsWith('image/') && file.url) {
+                appendMessage('agent', 'image', file.url);
+              } else if (file.mimeType?.startsWith('video/') && file.url) {
+                appendMessage('agent', 'iframe', file.url);
+              } else if (file.mimeType === 'application/pdf' && file.downloadUrl) {
+                appendMessage('agent', 'download', { name: file.name || 'documento.pdf', url: file.downloadUrl });
+              }
+              scrollToBottom();
+            }
+          }
+          return;
+        }
+
+        // CASO 3: JSON simple
+        const reply = data.output ?? data.message ?? data.response ?? data.text ?? data[0]?.output ?? JSON.stringify(data);
+        await new Promise(r => setTimeout(r, 800));
+        appendMessage('agent', 'text', reply);
+        scrollToBottom();
+
+      } catch (err) {
+        removeAgentTyping();
+        // CASO 5: Error de red
+        appendMessage('agent', 'text', `⚠️ No se pudo conectar.\n${err.message}`);
+        scrollToBottom();
+      }
+    }
+
+    // === SUGERENCIA ===
+    function injectSuggestion() {
+      const input = document.getElementById('messageInput');
+      input.value = CONFIG.suggestionMessage;
+      autoResize(input);
+      sendMessage();
+    }
+
+    // === AUTO-RESIZE DEL TEXTAREA ===
+    document.getElementById('messageInput').addEventListener('input', (e) => {
+      autoResize(e.target);
+    });
+  </script>
+</body>
+</html>
